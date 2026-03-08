@@ -10,5 +10,6 @@ public class GameConfig{
         GridHeight = height;
         PlayerStart = position;
     }
+    
     public static GameConfig Default => new GameConfig(40, 20, new Position(0, 0));
 }
