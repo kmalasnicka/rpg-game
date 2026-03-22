@@ -114,20 +114,20 @@ public sealed class Axe : TwoHandWeapon{
     public override string Name => "Axe";
 }
 
-public sealed class Useless1 : Item{
-    public override char Symbol => '1';
-    public override string Name => "Useless1";
-    public override string Description => "Not useful";
+public sealed class Bottle : Item{
+    public override char Symbol => 'b';
+    public override string Name => "Bottle";
+    public override string Description => "An empty bottle";
 }
 
-public sealed class Useless2 : Item{
-    public override char Symbol => '2';
-    public override string Name => "Useless2";
-    public override string Description => "Not useful";
+public sealed class Feather : Item{
+    public override char Symbol => 'f';
+    public override string Name => "Feather";
+    public override string Description => "A light feather";
 }
 
-public sealed class Useless3 : Item{
-    public override char Symbol => '3';
-    public override string Name => "Useless3";
-    public override string Description => "Not useful";
+public sealed class ScrapMetal : Item{
+    public override char Symbol => 'm';
+    public override string Name => "Scrap Metal";
+    public override string Description => "A useless piece of metal";
 }
