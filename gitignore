@@ -1,12 +1,15 @@
-# build folders
+# build
 bin/
 obj/
+out/
 
-# macOS
-.DS_Store
-
-# VS Code
+# IDE
+.vs/
 .vscode/
+
+# system
+.DS_Store
+Thumbs.db
 
 # logs
 *.log
