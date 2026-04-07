@@ -6,6 +6,10 @@ public sealed class DungeonGroundsStrategy : IDungeonStrategy{
     private readonly int _coinsCount;
     private readonly int _goldCount;
 
+    private readonly int _itemsCount; 
+    private readonly int _weaponsCount; 
+    private readonly int _coinsCount; 
+    private readonly int _goldCount; 
     public DungeonGroundsStrategy(int itemsCount = 10, int weaponsCount = 6, int coinsCount = 8, int goldCount = 4){
         _itemsCount = itemsCount;
         _weaponsCount = weaponsCount;
@@ -49,4 +53,5 @@ public sealed class EnsureStartAreaStep : IDungeonBuildStep{
         }
         DungeonStepHelpers.TryPlacePending(room, random);
     }
+    public void RegisterFeatures(DungeonFeatures features) { }
 }

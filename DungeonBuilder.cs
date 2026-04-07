@@ -6,6 +6,8 @@ public sealed class DungeonBuilder
     private readonly int _height;
     private readonly List<IDungeonBuildStep> _steps = new();
     private readonly Random _random = new();
+    private readonly DungeonFeatures _features = new();
+    public DungeonFeatures Features => _features;
 
     public DungeonBuilder(int width, int height)
     {
@@ -22,6 +24,7 @@ public sealed class DungeonBuilder
             throw new InvalidOperationException("Starter step can only be first.");
 
         _steps.Add(step);
+        step.RegisterFeatures(_features);
         return this;
     }
 

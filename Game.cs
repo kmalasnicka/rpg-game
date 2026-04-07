@@ -10,11 +10,13 @@ public sealed class Game{
     private IGameMode _mode; //worldmode/inventorymode
     private int _selectedIndex;
     private string _message = "";
+    private readonly DungeonFeatures _features;
 
-    public Game(Room room, Player player, Renderer renderer){
+    public Game(Room room, Player player, Renderer renderer, DungeonFeatures features){
         _room = room;
         _player = player;
         _renderer = renderer;
+        _features = features;
         _mode = new WorldMode(); //poczatkowy tryb to worldmode
         _instructionBuilder = new InstructionBuilder(); 
         IsInventoryOpen = false;
@@ -23,6 +25,7 @@ public sealed class Game{
     public Room Room => _room;
     public Player Player => _player;
     public bool IsInventoryOpen { get; private set; }
+    public DungeonFeatures Features => _features;
 
     public void Run(){
         _renderer.Initialize(); //przygotowujemy konsole
@@ -50,6 +53,11 @@ public sealed class Game{
         action.Execute(this);
     }
 
+    public bool SupportsItems() => _features.HasItems;
+    public bool SupportsWeapons() => _features.HasWeapons;
+    public bool SupportsCurrency() => _features.HasCurrency;
+    public bool SupportsLoot() => _features.HasItems || _features.HasWeapons || _features.HasCurrency;
+
     public bool HasItemOnGround(){ //czy na polu gracza sa itemy
         return _room.GetCell(_player.Position).ItemsOnCell.Count > 0;
     }
@@ -65,6 +73,10 @@ public sealed class Game{
     public bool HasAnythingToUnequip() => HasAnyEquipped();
 
     public void OpenInventory(){
+        if (!SupportsLoot()){
+            _message = "Inventory is not available in this dungeon";
+            return;
+        }
         _mode = new InventoryMode();
         IsInventoryOpen = true;
         _selectedIndex = 0;

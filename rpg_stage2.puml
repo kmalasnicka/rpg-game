@@ -15,8 +15,7 @@ package "Game" {
     -instructionBuilder : InstructionBuilder
     -combatService : CombatService
     -currentMode : IGameMode
-    -selectedIndex : int
-    -message : string
+    -selectedIndex : int    -message : string
     +Run() : void
     +TryMove(dx : int, dy : int) : void
     +TryPickup() : void

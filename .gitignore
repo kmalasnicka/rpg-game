@@ -1,0 +1,15 @@
+# build
+bin/
+obj/
+out/
+
+# IDE
+.vs/
+.vscode/
+
+# system
+.DS_Store
+Thumbs.db
+
+# logs
+*.log

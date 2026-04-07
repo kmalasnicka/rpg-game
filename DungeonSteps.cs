@@ -19,6 +19,7 @@ public sealed class EmptyDungeonStep : IDungeonBuildStep
 
         DungeonStepHelpers.TryPlacePending(room, random);
     }
+    public void RegisterFeatures(DungeonFeatures features) { }
 }
 
 public sealed class FilledDungeonStep : IDungeonBuildStep
@@ -33,6 +34,7 @@ public sealed class FilledDungeonStep : IDungeonBuildStep
                 room.SetTile(new Position(x, y), new WallTile());
         }
     }
+    public void RegisterFeatures(DungeonFeatures features) { }
 }
 
 public sealed class AddCentralRoomStep : IDungeonBuildStep
@@ -64,6 +66,7 @@ public sealed class AddCentralRoomStep : IDungeonBuildStep
 
         DungeonStepHelpers.TryPlacePending(room, random);
     }
+    public void RegisterFeatures(DungeonFeatures features) { }
 }
 
 public sealed class AddChambersStep : IDungeonBuildStep
@@ -112,6 +115,7 @@ public sealed class AddChambersStep : IDungeonBuildStep
 
         DungeonStepHelpers.TryPlacePending(room, random);
     }
+    public void RegisterFeatures(DungeonFeatures features) { }
 }
 
 public sealed class AddPathsStep : IDungeonBuildStep
@@ -153,6 +157,7 @@ public sealed class AddPathsStep : IDungeonBuildStep
 
         DungeonStepHelpers.TryPlacePending(room, random);
     }
+    public void RegisterFeatures(DungeonFeatures features) { }
 }
 
 public sealed class AddItemsStep : IDungeonBuildStep
@@ -181,6 +186,11 @@ public sealed class AddItemsStep : IDungeonBuildStep
         }
 
         DungeonStepHelpers.TryPlacePending(room, random);
+    }
+
+    public void RegisterFeatures(DungeonFeatures features)
+    {
+        features.HasItems = true;
     }
 }
 
@@ -211,6 +221,10 @@ public sealed class AddWeaponsStep : IDungeonBuildStep
 
         DungeonStepHelpers.TryPlacePending(room, random);
     }
+    public void RegisterFeatures(DungeonFeatures features)
+    {
+        features.HasWeapons = true;
+    }
 }
 
 public sealed class AddCurrencyStep : IDungeonBuildStep
@@ -235,5 +249,9 @@ public sealed class AddCurrencyStep : IDungeonBuildStep
             room.QueueItem(new Gold());
 
         DungeonStepHelpers.TryPlacePending(room, random);
+    }
+    public void RegisterFeatures(DungeonFeatures features)
+    {
+        features.HasCurrency = true;
     }
 }

@@ -27,7 +27,7 @@ public static class Program{
 
         var player = new Player(start, attributes);
         var renderer = new Renderer();
-        var game = new Game(room, player, renderer);
+        var game = new Game(room, player, renderer, builder.Features);
 
         game.Run();
     }
