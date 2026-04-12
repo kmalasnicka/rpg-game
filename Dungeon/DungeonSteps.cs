@@ -1,10 +1,51 @@
 namespace Rpg;
+using System.Linq;
 
 internal static class DungeonStepHelpers
 {
     public static void TryPlacePending(Room room, Random random)
     {
         room.TryPlacePendingItems(random);
+    }
+
+    public static Item CreateRandomItem(Random random)
+    {
+        return random.Next(3) switch
+        {
+            0 => new Bottle(),
+            1 => new Feather(),
+            _ => new ScrapMetal()
+        };
+    }
+
+    public static Weapon CreateRandomWeapon(Random random)
+    {
+        return random.Next(4) switch
+        {
+            0 => new Dagger(),
+            1 => new Sword(),
+            2 => new Axe(),
+            _ => new Wand()
+        };
+    }
+
+    public static Weapon ApplyRandomWeaponModifiers(Weapon weapon, Random random)
+    {
+        if (random.NextDouble() < 0.35)
+            weapon = new StrongWeaponModifier(weapon);
+
+        if (random.NextDouble() < 0.35)
+            weapon = new UnluckyWeaponModifier(weapon);
+
+        return weapon;
+    }
+
+    public static Item ApplyRandomItemModifiers(Item item, Random random)
+    {
+        if (random.NextDouble() < 0.35)
+            item = new UnluckyItemModifier(item);
+
+        return item;
     }
 }
 
@@ -175,13 +216,8 @@ public sealed class AddItemsStep : IDungeonBuildStep
     {
         for (int i = 0; i < _count; i++)
         {
-            Item item = random.Next(3) switch
-            {
-                0 => new Bottle(),
-                1 => new Feather(),
-                _ => new ScrapMetal()
-            };
-
+            Item item = DungeonStepHelpers.CreateRandomItem(random);
+            item = DungeonStepHelpers.ApplyRandomItemModifiers(item, random);
             room.QueueItem(item);
         }
 
@@ -209,13 +245,8 @@ public sealed class AddWeaponsStep : IDungeonBuildStep
     {
         for (int i = 0; i < _count; i++)
         {
-            Weapon weapon = random.Next(3) switch
-            {
-                0 => new Dagger(),
-                1 => new Sword(),
-                _ => new Axe()
-            };
-
+            Weapon weapon = DungeonStepHelpers.CreateRandomWeapon(random);
+            weapon = DungeonStepHelpers.ApplyRandomWeaponModifiers(weapon, random);
             room.QueueItem(weapon);
         }
 
@@ -253,5 +284,34 @@ public sealed class AddCurrencyStep : IDungeonBuildStep
     public void RegisterFeatures(DungeonFeatures features)
     {
         features.HasCurrency = true;
+    }
+}
+
+public sealed class AddEnemiesStep : IDungeonBuildStep
+{
+    private readonly int _count;
+
+    public AddEnemiesStep(int count)
+    {
+        _count = count;
+    }
+
+    public bool IsStarter => false;
+
+    public void Apply(Room room, Random random)
+    {
+        for (int i = 0; i < _count; i++)
+        {
+            var positions = room.GetWalkablePositions().Where(position => !room.GetCell(position).HasEnemy()).Where(position => !(position.X <= 2 && position.Y <=2)).ToList();
+            if (positions.Count == 0) return;
+
+            var pos = positions[random.Next(positions.Count)];
+            var enemy = new Enemy("Goblin", 20, 8, 2);
+            room.GetCell(pos).SetEnemy(enemy);
+        }
+    }
+
+    public void RegisterFeatures(DungeonFeatures features){
+        features.HasEnemies = true;
     }
 }

@@ -77,16 +77,17 @@ public class Room
         return count;
     }
     public int CountPendingItems() => _pendingItems.Count; //liczba przedmiotow czekajacyhc na umieszczenie
-}
 
-public class Cell{
-    public Tile Tile { get; private set; }
-    public List<Item> ItemsOnCell { get; } = new();
-    public Cell(Tile tile){
-        Tile = tile;
+    public Position? FindRandomEmptyWalkablePositionWithoutEnemy(Random random){
+        var positions = GetWalkablePositions().Where(position => !GetCell(position).HasEnemy()).ToList();
+        if (positions.Count == 0) return null;
+        return positions[random.Next(positions.Count)];
     }
-    public void SetTile(Tile tile){
-        Tile = tile;
-        if (!tile.CanEnter) ItemsOnCell.Clear();
+
+    public bool HasAnyEnemies(){
+        foreach (var position in GetAllPositions()){
+            if (GetCell(position).HasEnemy()) return true;
+        }
+        return false;
     }
 }

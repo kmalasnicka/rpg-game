@@ -24,6 +24,18 @@ public sealed class InstructionBuilder
         if (game.IsInventoryOpen)
             return;
 
+        if (game.SupportsEnemies())
+        {
+            if (game.HasEnemyOnCurrentCell())
+            {
+                instructions.Add("Enemy on this tile. Press 1, 2 or 3 to attack.");
+            }
+            else if (game.HasEnemiesAnywhere())
+            {
+                instructions.Add("Explore the dungeon to find enemies.");
+            }
+        }
+
         if (!game.SupportsLoot()) //nie ma łupów na mapie
         {
             instructions.Add("This dungeon does not contain loot.");
@@ -88,6 +100,9 @@ public sealed class InstructionBuilder
             ConsoleKey.LeftArrow => "LeftArrow",
             ConsoleKey.RightArrow => "RightArrow",
             ConsoleKey.Escape => "Esc",
+            ConsoleKey.D1 => "1",
+            ConsoleKey.D2 => "2",
+            ConsoleKey.D3 => "3",
             _ => key.ToString()
         };
     }

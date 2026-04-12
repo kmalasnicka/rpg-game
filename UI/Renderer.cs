@@ -73,15 +73,18 @@ public sealed class Renderer{
         int y = screenY - 1;
         line.Append('│'); //lewa ramka
 
-        for (int x = 0; x < room.Width; x++){ //dla kazdej kolumny
+        for (int x = 0; x < room.Width; x++){
             var pos = new Position(x, y);
+            var cell = room.GetCell(pos); 
 
             if (pos.X == player.Position.X && pos.Y == player.Position.Y){
-                line.Append('¶'); //gracz
+                line.Append('¶');
+            } else if (cell.HasEnemy()) {
+                line.Append('E');
+            } else if (cell.ItemsOnCell.Count > 0) {
+                line.Append(cell.ItemsOnCell[0].Symbol);
             } else {
-                var cell = room.GetCell(pos);
-                if (cell.ItemsOnCell.Count > 0) line.Append(cell.ItemsOnCell[0].Symbol); //symbol pierwszego przedmiotu
-                else line.Append(cell.Tile.Symbol); //symbol kafelka
+                line.Append(cell.Tile.Symbol);
             }
         }
 
@@ -108,16 +111,25 @@ public sealed class Renderer{
         }
 
         lines.Add($"Position: {player.Position}");
+        lines.Add($"Health: {player.Health}");
         lines.Add($"Coins: {player.Wallet.Coins}   Gold: {player.Wallet.Gold}");
-        lines.Add($"Strength: {player.Attributes.Strength}");
-        lines.Add($"Dexterity: {player.Attributes.Dexterity}");
-        lines.Add($"Health: {player.Attributes.Health}");
-        lines.Add($"Luck: {player.Attributes.Luck}");
-        lines.Add($"Aggression: {player.Attributes.Aggression}");
-        lines.Add($"Wisdom: {player.Attributes.Wisdom}");
+        lines.Add($"Strength: {player.EffectiveStrength}");
+        lines.Add($"Dexterity: {player.EffectiveDexterity}");
+        lines.Add($"Luck: {player.EffectiveLuck}");
+        lines.Add($"Aggression: {player.EffectiveAggression}");
+        lines.Add($"Wisdom: {player.EffectiveWisdom}");
         lines.Add($"Left hand: {(player.Equipment.Left?.Name ?? "-")}");
         lines.Add($"Right hand: {(player.Equipment.Right?.Name ?? "-")}");
         lines.Add("");
+
+        if (playerCell.HasEnemy() && playerCell.Enemy != null)
+        {
+            lines.Add($"Enemy: {playerCell.Enemy.Name}");
+            lines.Add($"Enemy Health: {playerCell.Enemy.Health}");
+            lines.Add($"Enemy Attack: {playerCell.Enemy.Attack}");
+            lines.Add($"Enemy Armor: {playerCell.Enemy.Armor}");
+            lines.Add("");
+        }
 
         if (playerCell.ItemsOnCell.Count == 0){
             lines.Add("No items on this tile");
@@ -142,5 +154,16 @@ public sealed class Renderer{
             }
         }
         return lines;
+    }
+
+    public void RenderGameOver(string message)
+    {
+        Console.Clear();
+        Console.SetCursorPosition(0, 0);
+        Console.WriteLine("GAME OVER");
+        Console.WriteLine();
+        Console.WriteLine(message);
+        Console.WriteLine();
+        Console.WriteLine("Press any key to exit...");
     }
 }

@@ -1,43 +1,16 @@
 namespace Rpg;
 
-public abstract class Item : IDrawable, IInteractable{
-    public abstract char Symbol { get; }
-    public abstract string Name { get; }
-    public virtual string Description => ""; 
-    public virtual bool TryEquip(Player player, bool targetLeftHand) => false;
-    public virtual void Interact(Player player) => player.Inventory.Add(this);
-}
-
-public abstract class Currency : Item{
-    public abstract int Amount { get; }
-    public sealed override void Interact(Player player)
-    {
-        AddToWallet(player, Amount);
-    }
-    protected abstract void AddToWallet(Player player, int amount); 
-}
-
-public sealed class Coin : Currency{
-    public override int Amount => 1;
-    public override char Symbol => 'c';
-    public override string Name => "Coin";
-    public override string Description => $"Coin worth: {Amount}";
-    protected override void AddToWallet(Player player, int amount) => player.Wallet.AddCoins(amount);
-}
-
-public sealed class Gold : Currency{
-    public override int Amount => 1;
-    public override char Symbol => 'g';
-    public override string Name => "Gold";
-    public override string Description => $"Gold worth: {Amount}";
-    protected override void AddToWallet(Player player, int amount) => player.Wallet.AddGold(amount);
-}
 
 public abstract class Weapon : Item, IEquipable{
-    public abstract int Damage { get; }
-    public override string Description => $"Damage: {Damage}";
+    public abstract int BaseDamage { get; }
+    public override string Description => $"Damage: {BaseDamage}";
+    public abstract bool IsTwoHanded { get; }
+    public abstract IWeaponKind WeaponKind { get; }
+
     public abstract void EquipLeft(Player player);
     public abstract void EquipRight(Player player);
+    public override CombatValues GetCombatValues(Player player, IAttackStyle style) => WeaponKind.GetCombatValues(player, this, style);
+
 }
 
 public abstract class OneHandWeapon : Weapon{
@@ -97,37 +70,37 @@ public abstract class TwoHandWeapon : Weapon{
 }
 
 public sealed class Dagger : OneHandWeapon{
-    public override int Damage => 2;
+    private static readonly IWeaponKind _kind = new LightWeaponKind();
+    public override int BaseDamage => 2;
     public override char Symbol => 'd';
     public override string Name => "Dagger";
+    public override bool IsTwoHanded => false;
+    public override IWeaponKind WeaponKind => _kind;
 }
 
 public sealed class Sword : OneHandWeapon{
-    public override int Damage => 5;
+    private static readonly IWeaponKind _kind = new LightWeaponKind();
+    public override int BaseDamage => 5;
     public override char Symbol => 's';
     public override string Name => "Sword";
+    public override bool IsTwoHanded => false;
+    public override IWeaponKind WeaponKind => _kind;
 }
 
 public sealed class Axe : TwoHandWeapon{
-    public override int Damage => 10;
+    private static readonly IWeaponKind _kind = new HeavyWeaponKind();
+    public override int BaseDamage => 10;
     public override char Symbol => 'a';
     public override string Name => "Axe";
+    public override bool IsTwoHanded => true;
+    public override IWeaponKind WeaponKind => _kind;
 }
 
-public sealed class Bottle : Item{
-    public override char Symbol => 'b';
-    public override string Name => "Bottle";
-    public override string Description => "An empty bottle";
-}
-
-public sealed class Feather : Item{
-    public override char Symbol => 'f';
-    public override string Name => "Feather";
-    public override string Description => "A light feather";
-}
-
-public sealed class ScrapMetal : Item{
-    public override char Symbol => 'm';
-    public override string Name => "Scrap Metal";
-    public override string Description => "A useless piece of metal";
+public sealed class Wand : TwoHandWeapon{
+    private static readonly IWeaponKind _kind = new MagicalWeaponKind();
+    public override int BaseDamage => 6;
+    public override char Symbol => 'w';
+    public override string Name => "Wand";
+    public override bool IsTwoHanded => true;
+    public override IWeaponKind WeaponKind => _kind;
 }

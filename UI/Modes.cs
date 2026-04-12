@@ -10,9 +10,14 @@ public sealed class WorldMode : IGameMode
             new GameAction(ConsoleKey.S, "Move down", g => true, g => g.TryMove(0, 1)),
             new GameAction(ConsoleKey.A, "Move left", g => true, g => g.TryMove(-1, 0)),
             new GameAction(ConsoleKey.D, "Move right", g => true, g => g.TryMove(1, 0)),
-            new GameAction(ConsoleKey.Q, "Quit game", g => true, g => g.Quit())
+            new GameAction(ConsoleKey.Q, "Quit game", g => true, g => g.Quit()),
         };
 
+        if (game.SupportsEnemies() && game.HasEnemyOnCurrentCell()){
+            actions.Add(new GameAction(ConsoleKey.D1, "Normal attack", g => g.HasEnemyOnCurrentCell(), g => g.AttackEnemy(new NormalAttack()), "There is no enemy here."));
+            actions.Add(new GameAction(ConsoleKey.D2, "Stealth attack", g => g.HasEnemyOnCurrentCell(), g => g.AttackEnemy(new StealthAttack()), "There is no enemy here."));
+            actions.Add(new GameAction(ConsoleKey.D3, "Magical attack", g => g.HasEnemyOnCurrentCell(), g => g.AttackEnemy(new MagicalAttack()), "There is no enemy here."));
+        }
         if (game.SupportsLoot()){
             if(game.HasItemOnGround()) actions.Add(new GameAction(ConsoleKey.E, "Pick up item", g => g.HasItemOnGround(), g => g.TryPickup(), "There is nothing here."));
             if(game.HasInventory() || game.HasAnyEquipped()) actions.Add(new GameAction(ConsoleKey.I, "Open inventory", g => true, g => g.OpenInventory()));

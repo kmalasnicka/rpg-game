@@ -5,16 +5,14 @@ public sealed class DungeonGroundsStrategy : IDungeonStrategy{
     private readonly int _weaponsCount;
     private readonly int _coinsCount;
     private readonly int _goldCount;
+    private readonly int _enemiesCount;
 
-    private readonly int _itemsCount; 
-    private readonly int _weaponsCount; 
-    private readonly int _coinsCount; 
-    private readonly int _goldCount; 
-    public DungeonGroundsStrategy(int itemsCount = 10, int weaponsCount = 6, int coinsCount = 8, int goldCount = 4){
+    public DungeonGroundsStrategy(int itemsCount = 10, int weaponsCount = 6, int coinsCount = 8, int goldCount = 4, int enemiesCount = 5){
         _itemsCount = itemsCount;
         _weaponsCount = weaponsCount;
         _coinsCount = coinsCount;
         _goldCount = goldCount;
+        _enemiesCount = enemiesCount;
     }
 
     public void Build(DungeonBuilder builder){
@@ -26,7 +24,8 @@ public sealed class DungeonGroundsStrategy : IDungeonStrategy{
             .AddStep(new EnsureStartAreaStep())
             .AddStep(new AddItemsStep(_itemsCount))
             .AddStep(new AddWeaponsStep(_weaponsCount))
-            .AddStep(new AddCurrencyStep(_coinsCount, _goldCount));
+            .AddStep(new AddCurrencyStep(_coinsCount, _goldCount))
+            .AddStep(new AddEnemiesStep(_enemiesCount));
     }
 }
 
@@ -37,7 +36,8 @@ public sealed class SimpleRoomStrategy : IDungeonStrategy{
             .AddStep(new AddCentralRoomStep(12, 8))
             .AddStep(new AddItemsStep(4))
             .AddStep(new AddWeaponsStep(3))
-            .AddStep(new AddCurrencyStep(3, 2));
+            .AddStep(new AddCurrencyStep(3, 2))
+            .AddStep(new AddEnemiesStep(5));
     }
 }
 

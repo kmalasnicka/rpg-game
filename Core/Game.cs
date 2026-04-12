@@ -6,11 +6,14 @@ public sealed class Game{
     private readonly Player _player;
     private readonly Renderer _renderer;
     private readonly InstructionBuilder _instructionBuilder; //obiekt ktory buduje liste instrukcji do wyswietlenia
+    private readonly CombatService _combatService;
+    private readonly DungeonFeatures _features;
+
     private bool _running = true;
-    private IGameMode _mode; //worldmode/inventorymode
+    private IGameMode _mode; 
     private int _selectedIndex;
     private string _message = "";
-    private readonly DungeonFeatures _features;
+    private bool _gameOver;
 
     public Game(Room room, Player player, Renderer renderer, DungeonFeatures features){
         _room = room;
@@ -19,6 +22,7 @@ public sealed class Game{
         _features = features;
         _mode = new WorldMode(); //poczatkowy tryb to worldmode
         _instructionBuilder = new InstructionBuilder(); 
+        _combatService = new CombatService();
         IsInventoryOpen = false;
     }
 
@@ -30,12 +34,19 @@ public sealed class Game{
     public void Run(){
         _renderer.Initialize(); //przygotowujemy konsole
         while (_running){
+            if(_gameOver){
+                _renderer.RenderGameOver(_message);
+                Console.ReadKey(intercept: true);
+                _running = false;
+                break;
+            }
             var actions = _mode.GetActions(this); //lista dostepnych akcji z aktualnego trybu
             var instructions = _instructionBuilder.Build(this, actions); //tworzymy instrukcje na podstawie trybu i stanu gry
             _renderer.Render(_room, _player, actions, _selectedIndex, _message, instructions, IsInventoryOpen);
-            var key = Console.ReadKey(intercept: true).Key; //pobieramy klawisz bez wypisywania
+            
+            var key = Console.ReadKey(intercept: true).Key;
             HandleKey(key, actions);
-        }
+            }
         _renderer.Shutdown();
     }
 
@@ -56,21 +67,18 @@ public sealed class Game{
     public bool SupportsItems() => _features.HasItems;
     public bool SupportsWeapons() => _features.HasWeapons;
     public bool SupportsCurrency() => _features.HasCurrency;
+    public bool SupportsEnemies() => _features.HasEnemies;
     public bool SupportsLoot() => _features.HasItems || _features.HasWeapons || _features.HasCurrency;
 
-    public bool HasItemOnGround(){ //czy na polu gracza sa itemy
-        return _room.GetCell(_player.Position).ItemsOnCell.Count > 0;
-    }
-
-    public bool HasItemsAnywhere(){ //czy na mapie sa itemy
-        return _room.HasAnyGroundItems();
-    }
-
+    public bool HasItemOnGround() => _room.GetCell(_player.Position).ItemsOnCell.Count > 0;
+    public bool HasItemsAnywhere() => _room.HasAnyGroundItems();
     public bool HasInventory() => _player.Inventory.Count > 0;
     public bool HasLeftEquipped() => _player.Equipment.Left != null;
     public bool HasRightEquipped() => _player.Equipment.Right != null;
     public bool HasAnyEquipped() => _player.Equipment.Left != null || _player.Equipment.Right != null;
     public bool HasAnythingToUnequip() => HasAnyEquipped();
+    public bool HasEnemyOnCurrentCell() => _room.GetCell(_player.Position).Enemy is not null;
+    public bool HasEnemiesAnywhere() => _room.HasAnyEnemies();
 
     public void OpenInventory(){
         if (!SupportsLoot()){
@@ -193,5 +201,27 @@ public sealed class Game{
         _room.GetCell(_player.Position).ItemsOnCell.Add(item);
         if (_selectedIndex >= _player.Inventory.Count) _selectedIndex = Math.Max(0, _player.Inventory.Count - 1);
         _message = $"Dropped: {item.Name}";
+    }
+
+    public void AttackEnemy(IAttackStyle style)
+    {
+        Cell cell = Room.GetCell(Player.Position);
+
+        if (cell.Enemy is null)
+        {
+            _message = "There is no enemy here.";
+            return;
+        }
+
+        CombatResult result = _combatService.PerformAttack(Player, cell.Enemy, style);
+
+        if (result.EnemyDefeated) cell.RemoveEnemy();
+
+        _message = result.Message;
+
+        if (result.PlayerDefeated){
+            _message = $"You were defeated by {cell.Enemy.Name}.";
+            _gameOver = true;
+        }
     }
 }

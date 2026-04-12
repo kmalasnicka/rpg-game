@@ -7,9 +7,10 @@ public static class Program{
 
         var strategy = new DungeonGroundsStrategy( 
             itemsCount: 10,
-            weaponsCount: 6,
-            coinsCount: 8,
-            goldCount: 4);
+            weaponsCount: 10,
+            coinsCount: 5,
+            goldCount: 5,
+            enemiesCount: 5);
         //builder tworzy nowy dungeon
         strategy.Build(builder);
         var room = builder.Build();
@@ -17,7 +18,6 @@ public static class Program{
         var attributes = new Attributes(
             strength: 5,
             dexterity: 5,
-            health: 10,
             luck: 3,
             aggression: 4,
             wisdom: 2);
@@ -25,7 +25,7 @@ public static class Program{
         var start = room.CanEnter(config.PlayerStart) ? config.PlayerStart : room.GetWalkablePositions().FirstOrDefault();
         if (!room.CanEnter(start)) throw new InvalidOperationException("Dungeon does not contain any walkable starting position.");
 
-        var player = new Player(start, attributes);
+        var player = new Player(start, attributes, 30);
         var renderer = new Renderer();
         var game = new Game(room, player, renderer, builder.Features);
 
