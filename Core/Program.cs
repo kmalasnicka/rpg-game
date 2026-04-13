@@ -18,7 +18,7 @@ public static class Program{
         var attributes = new Attributes(
             strength: 5,
             dexterity: 5,
-            luck: 3,
+            luck: 15,
             aggression: 4,
             wisdom: 2);
 //jesli (0,0) jest przechodnie to tam startujemy jak nie to z pierwszego przechoniego pola z mapy
