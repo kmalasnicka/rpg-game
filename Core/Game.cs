@@ -207,7 +207,7 @@ public sealed class Game{
     {
         Cell cell = Room.GetCell(Player.Position);
 
-        if (cell.Enemy is null)
+        if (cell.Enemy == null)
         {
             _message = "There is no enemy here.";
             return;
