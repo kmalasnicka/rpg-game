@@ -204,10 +204,12 @@ public sealed class AddPathsStep : IDungeonBuildStep
 public sealed class AddItemsStep : IDungeonBuildStep
 {
     private readonly int _count;
+    private readonly IItemFactory _factory;
 
-    public AddItemsStep(int count)
+    public AddItemsStep(int count, IItemFactory factory)
     {
         _count = count;
+        _factory = factory;
     }
 
     public bool IsStarter => false;
@@ -216,7 +218,7 @@ public sealed class AddItemsStep : IDungeonBuildStep
     {
         for (int i = 0; i < _count; i++)
         {
-            Item item = DungeonStepHelpers.CreateRandomItem(random);
+            Item item = _factory.Create(random);
             item = DungeonStepHelpers.ApplyRandomItemModifiers(item, random);
             room.QueueItem(item);
         }
@@ -233,10 +235,12 @@ public sealed class AddItemsStep : IDungeonBuildStep
 public sealed class AddWeaponsStep : IDungeonBuildStep
 {
     private readonly int _count;
+    private readonly IWeaponFactory _factory;
 
-    public AddWeaponsStep(int count)
+    public AddWeaponsStep(int count, IWeaponFactory factory)
     {
         _count = count;
+        _factory = factory;
     }
 
     public bool IsStarter => false;
@@ -245,15 +249,46 @@ public sealed class AddWeaponsStep : IDungeonBuildStep
     {
         for (int i = 0; i < _count; i++)
         {
-            Weapon weapon = DungeonStepHelpers.CreateRandomWeapon(random);
+            Weapon weapon = _factory.Create(random);
             weapon = DungeonStepHelpers.ApplyRandomWeaponModifiers(weapon, random);
             room.QueueItem(weapon);
         }
 
         DungeonStepHelpers.TryPlacePending(room, random);
     }
+
     public void RegisterFeatures(DungeonFeatures features)
     {
+        features.HasWeapons = true;
+    }
+}
+
+public sealed class AddArtifactStep : IDungeonBuildStep
+{
+    private readonly Item _artifact;
+
+    public AddArtifactStep(Item artifact)
+    {
+        _artifact = artifact;
+    }
+
+    public bool IsStarter => false;
+
+    public void Apply(Room room, Random random)
+    {
+        var pos = room.FindRandomEmptyWalkablePositionWithoutEnemy(random);
+
+        if (pos != null)
+        {
+            room.PlaceItem(pos.Value, _artifact);
+        }
+        DungeonStepHelpers.TryPlacePending(room, random);
+        EventLog.Current.Add($"Artifact placed in dungeon: {_artifact.Name}.");
+    }
+
+    public void RegisterFeatures(DungeonFeatures features)
+    {
+        features.HasItems = true;
         features.HasWeapons = true;
     }
 }
@@ -290,25 +325,38 @@ public sealed class AddCurrencyStep : IDungeonBuildStep
 public sealed class AddEnemiesStep : IDungeonBuildStep
 {
     private readonly int _count;
+    private readonly IEnemyFactory _factory;
 
-    public AddEnemiesStep(int count)
+    public AddEnemiesStep(int count, IEnemyFactory factory)
     {
         _count = count;
+        _factory = factory;
     }
 
     public bool IsStarter => false;
 
     public void Apply(Room room, Random random)
     {
+        int created = 0;
+
         for (int i = 0; i < _count; i++)
         {
-            var positions = room.GetWalkablePositions().Where(position => !room.GetCell(position).HasEnemy()).Where(position => !(position.X <= 2 && position.Y <=2)).ToList();
-            if (positions.Count == 0) return;
+            var positions = room.GetWalkablePositions()
+                .Where(position => !room.GetCell(position).HasEnemy())
+                .Where(position => !(position.X <= 2 && position.Y <= 2))
+                .ToList();
+
+            if (positions.Count == 0) break;
 
             var pos = positions[random.Next(positions.Count)];
-            var enemy = new Enemy("Goblin", 20, 8, 2);
+            var enemy = _factory.Create(random);
             room.GetCell(pos).SetEnemy(enemy);
+
+            created++;
         }
+
+        if (created > 0)
+            EventLog.Current.Add($"{created} enemies appeared in the dungeon.");
     }
 
     public void RegisterFeatures(DungeonFeatures features){

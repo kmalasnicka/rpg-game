@@ -15,21 +15,31 @@ public sealed class Game{
     private string _message = "";
     private bool _gameOver;
 
-    public Game(Room room, Player player, Renderer renderer, DungeonFeatures features){
+    private readonly string _introMessage;
+    private readonly string _logFilePath;
+    private readonly string _themeName;
+    private string _lastLogMessage = "";
+
+    public Game(Room room, Player player, Renderer renderer, DungeonFeatures features, string introMessage, string logFilePath, string themeName){
         _room = room;
         _player = player;
         _renderer = renderer;
         _features = features;
-        _mode = new WorldMode(); //poczatkowy tryb to worldmode
-        _instructionBuilder = new InstructionBuilder(); 
+        _introMessage = introMessage;
+        _logFilePath = logFilePath;
+        _themeName = themeName;
+        _mode = new WorldMode();
+        _instructionBuilder = new InstructionBuilder();
         _combatService = new CombatService();
         IsInventoryOpen = false;
+        _message = _introMessage;
     }
 
     public Room Room => _room;
     public Player Player => _player;
     public bool IsInventoryOpen { get; private set; }
     public DungeonFeatures Features => _features;
+    public string ThemeName => _themeName;
 
     public void Run(){
         _renderer.Initialize(); //przygotowujemy konsole
@@ -42,7 +52,8 @@ public sealed class Game{
             }
             var actions = _mode.GetActions(this); //lista dostepnych akcji z aktualnego trybu
             var instructions = _instructionBuilder.Build(this, actions); //tworzymy instrukcje na podstawie trybu i stanu gry
-            _renderer.Render(_room, _player, actions, _selectedIndex, _message, instructions, IsInventoryOpen);
+            var recentLogEntries = EventLog.Current.GetRecentEntries(); //bierzemy ostatnie wpisy
+            _renderer.Render(_room, _player, actions, _selectedIndex, _message, instructions, IsInventoryOpen, recentLogEntries, ThemeName);
             
             var key = Console.ReadKey(intercept: true).Key;
             HandleKey(key, actions);
@@ -53,7 +64,7 @@ public sealed class Game{
     private void HandleKey(ConsoleKey key, List<GameAction> actions){
         var action = actions.FirstOrDefault(a => a.Key == key); //szukamy akcji przypisanej do klawisza
         if (action == null){
-            _message = "Unknown key"; //nieznany klaiwsz 
+            Log($"Unknown key pressed: {key}.");
             return;
         }
 
@@ -77,7 +88,7 @@ public sealed class Game{
     public bool HasRightEquipped() => _player.Equipment.Right != null;
     public bool HasAnyEquipped() => _player.Equipment.Left != null || _player.Equipment.Right != null;
     public bool HasAnythingToUnequip() => HasAnyEquipped();
-    public bool HasEnemyOnCurrentCell() => _room.GetCell(_player.Position).Enemy is not null;
+    public bool HasEnemyOnCurrentCell() => _room.GetCell(_player.Position).Enemy != null;
     public bool HasEnemiesAnywhere() => _room.HasAnyEnemies();
 
     public void OpenInventory(){
@@ -128,6 +139,7 @@ public sealed class Game{
             _player.Inventory.RemoveAt(_selectedIndex);
             if (_selectedIndex >= _player.Inventory.Count) _selectedIndex = Math.Max(0, _player.Inventory.Count - 1);
             _message = $"Equipped: {item.Name}";
+            Log($"{_player.Name} equipped: {item.Name}.");
         } else {
             _message = $"Cannot equip: {item.Name}";
         }
@@ -173,6 +185,7 @@ public sealed class Game{
             _message = "";
         } else {
             _message = "You cannot move there";
+            Log($"Player attempted to walk into a wall at {next}.");
         }
     }
 
@@ -186,6 +199,7 @@ public sealed class Game{
         cell.ItemsOnCell.RemoveAt(0);
         item.Interact(_player);
         _message = $"Picked up: {item.Name}";
+        Log($"{_player.Name} picked up: {item.Name}.");
     }
 
     public void DropSelected(){
@@ -213,15 +227,33 @@ public sealed class Game{
             return;
         }
 
-        CombatResult result = _combatService.PerformAttack(Player, cell.Enemy, style);
+        Enemy enemy = cell.Enemy;
+        CombatResult result = _combatService.PerformAttack(Player, enemy, style);
 
         if (result.EnemyDefeated) cell.RemoveEnemy();
 
         _message = result.Message;
 
         if (result.PlayerDefeated){
-            _message = $"You were defeated by {cell.Enemy.Name}.";
+            _message = $"You were defeated by {enemy.Name}. Log file: {_logFilePath}";
+            Log($"{Player.Name} was defeated by {enemy.Name}.");
+            Log($"Log file saved at: {_logFilePath}");
             _gameOver = true;
         }
+    }
+
+    public void OpenJournal()
+    {
+        var entries = EventLog.Current.GetAllEntries();
+        _renderer.RenderJournal(entries);
+    }
+
+    private void Log(string message)
+    {
+        if (_lastLogMessage == message)
+            return;
+
+        EventLog.Current.Add(message);
+        _lastLogMessage = message;
     }
 }

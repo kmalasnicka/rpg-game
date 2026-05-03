@@ -10,7 +10,7 @@ public abstract class Weapon : Item, IEquipable{
     public abstract void EquipLeft(Player player);
     public abstract void EquipRight(Player player);
     public override CombatValues GetCombatValues(Player player, IAttackStyle style) => WeaponKind.GetCombatValues(player, this, style);
-
+    public override bool AffectsPlayerWhileInInventory => false;
 }
 
 public abstract class OneHandWeapon : Weapon{

@@ -22,22 +22,23 @@ public sealed class DungeonGroundsStrategy : IDungeonStrategy{
             .AddStep(new AddPathsStep(28, 8, 20))
             .AddStep(new AddChambersStep(16, 4, 10, 3, 7))
             .AddStep(new EnsureStartAreaStep())
-            .AddStep(new AddItemsStep(_itemsCount))
-            .AddStep(new AddWeaponsStep(_weaponsCount))
+            .AddStep(new AddItemsStep(_itemsCount, new LibraryItemFactory()))
+            .AddStep(new AddWeaponsStep(_weaponsCount, new LibraryWeaponFactory()))
             .AddStep(new AddCurrencyStep(_coinsCount, _goldCount))
-            .AddStep(new AddEnemiesStep(_enemiesCount));
+            .AddStep(new AddEnemiesStep(_enemiesCount, new LibraryEnemyFactory()));
     }
 }
 
 public sealed class SimpleRoomStrategy : IDungeonStrategy{
-    public void Build(DungeonBuilder builder){
+    public void Build(DungeonBuilder builder)
+    {
         builder
             .AddStep(new EmptyDungeonStep())
             .AddStep(new AddCentralRoomStep(12, 8))
-            .AddStep(new AddItemsStep(4))
-            .AddStep(new AddWeaponsStep(3))
+            .AddStep(new AddItemsStep(4, new LibraryItemFactory()))
+            .AddStep(new AddWeaponsStep(3, new LibraryWeaponFactory()))
             .AddStep(new AddCurrencyStep(3, 2))
-            .AddStep(new AddEnemiesStep(5));
+            .AddStep(new AddEnemiesStep(5, new LibraryEnemyFactory()));
     }
 }
 

@@ -9,8 +9,10 @@ public class Player : Fighter{
     public Inventory Inventory { get; }
     public Equipment Equipment { get; }
     public Wallet Wallet { get; }
+    public string Name { get; }
 
-    public Player(Position startPosition, Attributes attributes, int health) : base(health){
+    public Player(string name, Position startPosition, Attributes attributes, int health) : base(health){
+        Name = name;
         Position = startPosition;
         Attributes = attributes;
         Inventory = new Inventory();
@@ -59,7 +61,7 @@ public class Player : Fighter{
         int total = 0;
 
         foreach (var item in Inventory.Items){
-            if (item is Weapon)
+            if (!item.AffectsPlayerWhileInInventory)
                 continue;
 
             total += selector(item);

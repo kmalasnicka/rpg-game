@@ -15,7 +15,7 @@ public sealed class Renderer{
         Console.CursorVisible = true;
     }
 
-    public void Render(Room room, Player player, List<GameAction> actions, int selectedIndex, string message, IReadOnlyList<string> instructions, bool inventoryOpen) {
+    public void Render(Room room, Player player, List<GameAction> actions, int selectedIndex, string message, IReadOnlyList<string> instructions, bool inventoryOpen, IReadOnlyList<string> recentLogEntries, string themeName) {
         int windowWidth = Math.Min(FixedWindowWidth, Console.WindowWidth);
         int windowHeight = Math.Min(FixedWindowHeight, Console.WindowHeight);
 //rozmiar planszy i sidebara (+2 na ramke)
@@ -26,7 +26,7 @@ public sealed class Renderer{
 
         var playerCell = room.GetCell(player.Position);
 
-        var sidebarLines = BuildSidebarLines(player, inventoryOpen, selectedIndex, playerCell, message, instructions);
+        var sidebarLines = BuildSidebarLines(player, inventoryOpen, selectedIndex, playerCell, message, instructions, recentLogEntries, themeName);
         int totalLines = Math.Max(boardHeight, sidebarLines.Count);
         int linesToDraw = Math.Min(totalLines, windowHeight);
 
@@ -92,10 +92,11 @@ public sealed class Renderer{
         return line.ToString();
     }
 
-    private List<string> BuildSidebarLines(Player player, bool inventoryOpen, int selectedIndex, Cell playerCell, string message, IReadOnlyList<string> instructions)
+    private List<string> BuildSidebarLines(Player player, bool inventoryOpen, int selectedIndex, Cell playerCell, string message, IReadOnlyList<string> instructions, IReadOnlyList<string> recentLogEntries, string themeName)
     {
         var lines = new List<string>{
             "RPG Game",
+            $"Theme: {themeName}",
             "",
             "Instructions:"
         };
@@ -153,6 +154,11 @@ public sealed class Renderer{
                 lines.Add($"Desc: {player.Inventory.Items[selectedIndex].Description}");
             }
         }
+        lines.Add("");
+        lines.Add("Recent log:"); //printowanie recent logs:
+
+        foreach (var entry in recentLogEntries)
+            lines.Add(entry);
         return lines;
     }
 
@@ -165,5 +171,22 @@ public sealed class Renderer{
         Console.WriteLine(message);
         Console.WriteLine();
         Console.WriteLine("Press any key to exit...");
+    }
+
+    public void RenderJournal(IReadOnlyList<string> entries) //caly log od poczatku gry
+    {
+        Console.Clear();
+        Console.SetCursorPosition(0, 0);
+
+        Console.WriteLine("EVENT LOG");
+        Console.WriteLine();
+
+        foreach (var entry in entries)
+            Console.WriteLine(entry);
+
+        Console.WriteLine();
+        Console.WriteLine("Press any key to return...");
+        Console.ReadKey(intercept: true);
+        Console.Clear();
     }
 }

@@ -3,10 +3,10 @@ namespace Rpg;
 public abstract class Item : IDrawable, IInteractable{
     public abstract char Symbol { get; }
     public abstract string Name { get; }
-    public virtual string Description => ""; 
+    public virtual string Description => "";
     public virtual bool TryEquip(Player player, bool targetLeftHand) => false;
     public virtual void Interact(Player player) => player.Inventory.Add(this);
-    
+
     public virtual CombatValues GetCombatValues(Player player, IAttackStyle style) => style.UseWithoutWeapon(player);
     public virtual int GetDamageModifier() => 0;
     public virtual int GetStrengthModifier() => 0;
@@ -14,15 +14,17 @@ public abstract class Item : IDrawable, IInteractable{
     public virtual int GetAggressionModifier() => 0;
     public virtual int GetWisdomModifier() => 0;
     public virtual int GetLuckModifier() => 0;
+    public virtual bool AffectsPlayerWhileInInventory => true;
 }
 
 public abstract class Currency : Item{
     public abstract int Amount { get; }
-    public sealed override void Interact(Player player)
-    {
+
+    public sealed override void Interact(Player player){
         AddToWallet(player, Amount);
     }
-    protected abstract void AddToWallet(Player player, int amount); 
+
+    protected abstract void AddToWallet(Player player, int amount);
 }
 
 public sealed class Coin : Currency{

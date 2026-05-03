@@ -11,6 +11,7 @@ public sealed class WorldMode : IGameMode
             new GameAction(ConsoleKey.A, "Move left", g => true, g => g.TryMove(-1, 0)),
             new GameAction(ConsoleKey.D, "Move right", g => true, g => g.TryMove(1, 0)),
             new GameAction(ConsoleKey.Q, "Quit game", g => true, g => g.Quit()),
+            new GameAction(ConsoleKey.J, "Open event log", g => true, g => g.OpenJournal()),
         };
 
         if (game.SupportsEnemies() && game.HasEnemyOnCurrentCell()){
@@ -35,7 +36,8 @@ public sealed class InventoryMode : IGameMode
             new GameAction(ConsoleKey.UpArrow, "Select previous item", g => g.HasInventory(), g => g.SelectUp(), "Inventory is empty."),
             new GameAction(ConsoleKey.DownArrow, "Select next item", g => g.HasInventory(), g => g.SelectDown(), "Inventory is empty."),
             new GameAction(ConsoleKey.X, "Drop selected item", g => g.HasInventory(), g => g.DropSelected(), "Inventory is empty."),
-            new GameAction(ConsoleKey.Escape, "Close inventory", g => true, g => g.CloseInventory())
+            new GameAction(ConsoleKey.Escape, "Close inventory", g => true, g => g.CloseInventory()),
+            new GameAction(ConsoleKey.J, "Open event log", g => true, g => g.OpenJournal()),
         };
 
         if (game.SupportsWeapons())
