@@ -10,7 +10,7 @@ public sealed class LibraryTheme : IDungeonTheme{
 
     public IItemFactory CreateItemFactory() => new LibraryItemFactory();
     public IWeaponFactory CreateWeaponFactory() => new LibraryWeaponFactory();
-    public IEnemyFactory CreateEnemyFactory() => new LibraryEnemyFactory();
+    //public IEnemyFactory CreateEnemyFactory() => new LibraryEnemyFactory();
     public Item CreateArtifact() => new BlackWand();
 }
 
@@ -24,7 +24,7 @@ public sealed class ForgeTheme : IDungeonTheme{
 
     public IItemFactory CreateItemFactory() => new ForgeItemFactory();
     public IWeaponFactory CreateWeaponFactory() => new ForgeWeaponFactory();
-    public IEnemyFactory CreateEnemyFactory() => new ForgeEnemyFactory();
+    //public IEnemyFactory CreateEnemyFactory() => new ForgeEnemyFactory();
     public Item CreateArtifact() => new Blaster();
 }
 
@@ -38,6 +38,6 @@ public sealed class TreasuryTheme : IDungeonTheme{
 
     public IItemFactory CreateItemFactory() => new TreasuryItemFactory();
     public IWeaponFactory CreateWeaponFactory() => new TreasuryWeaponFactory();
-    public IEnemyFactory CreateEnemyFactory() => new TreasuryEnemyFactory();
+    //public IEnemyFactory CreateEnemyFactory() => new TreasuryEnemyFactory();
     public Item CreateArtifact() => new LuckyCoinPouch();
 }

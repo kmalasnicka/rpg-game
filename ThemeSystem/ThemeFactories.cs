@@ -20,11 +20,11 @@ public sealed class LibraryWeaponFactory : IWeaponFactory{
     }
 }
 
-public sealed class LibraryEnemyFactory : IEnemyFactory{
-    public Enemy Create(Random random){
-        return new Enemy("Mage", 18, 7, 1);
-    }
-}
+// public sealed class LibraryEnemyFactory : IEnemyFactory{
+//     public Enemy Create(Random random){
+//         return new Enemy("Mage", 18, 7, 1);
+//     }
+// }
 
 public sealed class ForgeItemFactory : IItemFactory{
     public Item Create(Random random){
@@ -46,11 +46,11 @@ public sealed class ForgeWeaponFactory : IWeaponFactory{
     }
 }
 
-public sealed class ForgeEnemyFactory : IEnemyFactory{
-    public Enemy Create(Random random){
-        return new Enemy("Cleaning Robot", 25, 9, 4);
-    }
-}
+// public sealed class ForgeEnemyFactory : IEnemyFactory{
+//     public Enemy Create(Random random){
+//         return new Enemy("Cleaning Robot", 25, 9, 4);
+//     }
+// }
 
 public sealed class TreasuryItemFactory : IItemFactory{
     public Item Create(Random random){
@@ -64,10 +64,10 @@ public sealed class TreasuryWeaponFactory : IWeaponFactory{
     }
 }
 
-public sealed class TreasuryEnemyFactory : IEnemyFactory{
-    public Enemy Create(Random random){
-        return random.Next(2) == 0
-            ? new Enemy("Aggressive Briefcase", 20, 10, 2)
-            : new Enemy("Angry Safe", 30, 8, 6);
-    }
-}
+// public sealed class TreasuryEnemyFactory : IEnemyFactory{
+//     public Enemy Create(Random random){
+//         return random.Next(2) == 0
+//             ? new Enemy("Aggressive Briefcase", 20, 10, 2)
+//             : new Enemy("Angry Safe", 30, 8, 6);
+//     }
+// }

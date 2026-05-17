@@ -325,41 +325,67 @@ public sealed class AddCurrencyStep : IDungeonBuildStep
 public sealed class AddEnemiesStep : IDungeonBuildStep
 {
     private readonly int _count;
-    private readonly IEnemyFactory _factory;
+    private readonly Subject<NoiseEvent> _noiseSubject;
 
-    public AddEnemiesStep(int count, IEnemyFactory factory)
+
+    public AddEnemiesStep(int count, Subject<NoiseEvent> noiseSubject)
     {
         _count = count;
-        _factory = factory;
+        _noiseSubject = noiseSubject;
     }
 
     public bool IsStarter => false;
 
     public void Apply(Room room, Random random)
     {
+        var goblins = new EnemySpecies(new CowardlySpeciesReaction("Goblins"));
+        var skeletons = new EnemySpecies(new AggressiveSpeciesReaction("Skeletons"));
         int created = 0;
 
-        for (int i = 0; i < _count; i++)
-        {
-            var positions = room.GetWalkablePositions()
-                .Where(position => !room.GetCell(position).HasEnemy())
-                .Where(position => !(position.X <= 2 && position.Y <= 2))
-                .ToList();
+        int goblinsCreated = CreateSpecies(room, random, goblins, "Goblin", 'G', 12, 6, 1, Math.Max(2, _count / 2));
+        int skeletonsCreated = CreateSpecies(room, random, skeletons, "Skeleton", 'S', 18, 8, 2, Math.Max(2, _count - _count / 2));
+        created = goblinsCreated + skeletonsCreated;
 
+        EventLog.Current.Add($"{goblinsCreated} Goblins and {skeletonsCreated} Skeletons appeared in the dungeon.");
+    }
+
+    private int CreateSpecies(Room room, Random random, EnemySpecies species, string name, char symbol, int health, int attack, int armor, int count){
+        int created = 0;
+        while(created < count){
+            var positions = room.GetWalkablePositions().Where(position => !room.GetCell(position).HasEnemy()).Where(position => position.X > 2 || position.Y > 2).ToList();
             if (positions.Count == 0) break;
+            var position = positions[random.Next(positions.Count)];
 
-            var pos = positions[random.Next(positions.Count)];
-            var enemy = _factory.Create(random);
-            room.GetCell(pos).SetEnemy(enemy);
-
+            var enemy = new Enemy(name, symbol, health, attack, armor, position, species, _noiseSubject);
+            room.GetCell(position).SetEnemy(enemy);
+            room.RegisterEnemy(enemy);
             created++;
         }
-
-        if (created > 0)
-            EventLog.Current.Add($"{created} enemies appeared in the dungeon.");
+        return created;
     }
 
     public void RegisterFeatures(DungeonFeatures features){
         features.HasEnemies = true;
     }
 }
+
+public sealed class ConnectStartToCenterStep : IDungeonBuildStep
+    {
+        public bool IsStarter => false;
+
+        public void Apply(Room room, Random random)
+        {
+            int centerX = room.Width / 2;
+            int centerY = room.Height / 2;
+
+            for (int x = 0; x <= centerX; x++)
+                room.SetTile(new Position(x, 0), new EmptyTile());
+
+            for (int y = 0; y <= centerY; y++)
+                room.SetTile(new Position(centerX, y), new EmptyTile());
+
+            DungeonStepHelpers.TryPlacePending(room, random);
+        }
+
+        public void RegisterFeatures(DungeonFeatures features) { }
+    }

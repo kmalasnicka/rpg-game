@@ -7,6 +7,6 @@ public interface IDungeonTheme{
     IDungeonStrategy CreateStrategy();
     IItemFactory CreateItemFactory();
     IWeaponFactory CreateWeaponFactory();
-    IEnemyFactory CreateEnemyFactory();
+    //IEnemyFactory CreateEnemyFactory();
     Item CreateArtifact();
 }

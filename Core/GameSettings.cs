@@ -15,3 +15,4 @@ public sealed class GameSettings{
         return settings;
     }
 }
+

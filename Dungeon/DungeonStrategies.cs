@@ -25,7 +25,7 @@ public sealed class DungeonGroundsStrategy : IDungeonStrategy{
             .AddStep(new AddItemsStep(_itemsCount, new LibraryItemFactory()))
             .AddStep(new AddWeaponsStep(_weaponsCount, new LibraryWeaponFactory()))
             .AddStep(new AddCurrencyStep(_coinsCount, _goldCount))
-            .AddStep(new AddEnemiesStep(_enemiesCount, new LibraryEnemyFactory()));
+            .AddStep(new AddEnemiesStep(_enemiesCount, builder.NoiseSubject));
     }
 }
 
@@ -34,11 +34,12 @@ public sealed class SimpleRoomStrategy : IDungeonStrategy{
     {
         builder
             .AddStep(new EmptyDungeonStep())
+            .AddStep(new ConnectStartToCenterStep())
             .AddStep(new AddCentralRoomStep(12, 8))
             .AddStep(new AddItemsStep(4, new LibraryItemFactory()))
             .AddStep(new AddWeaponsStep(3, new LibraryWeaponFactory()))
             .AddStep(new AddCurrencyStep(3, 2))
-            .AddStep(new AddEnemiesStep(5, new LibraryEnemyFactory()));
+            .AddStep(new AddEnemiesStep(5, builder.NoiseSubject));
     }
 }
 

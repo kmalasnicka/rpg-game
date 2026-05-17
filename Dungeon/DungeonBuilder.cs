@@ -7,8 +7,11 @@ public sealed class DungeonBuilder
     private readonly List<IDungeonBuildStep> _steps = new();
     private readonly Random _random = new();
     private readonly DungeonFeatures _features = new();
-    public DungeonFeatures Features => _features;
+    private readonly Subject<NoiseEvent> _noiseSubject = new();
 
+    public DungeonFeatures Features => _features;
+    public Subject<NoiseEvent> NoiseSubject => _noiseSubject;
+    
     public DungeonBuilder(int width, int height)
     {
         _width = width;

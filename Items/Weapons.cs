@@ -11,6 +11,7 @@ public abstract class Weapon : Item, IEquipable{
     public abstract void EquipRight(Player player);
     public override CombatValues GetCombatValues(Player player, IAttackStyle style) => WeaponKind.GetCombatValues(player, this, style);
     public override bool AffectsPlayerWhileInInventory => false;
+    public override int NoiseRange => WeaponKind.NoiseRange;
 }
 
 public abstract class OneHandWeapon : Weapon{

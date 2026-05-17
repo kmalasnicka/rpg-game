@@ -54,9 +54,11 @@ public sealed class Renderer{
         return text.Substring(0, width);
     }
 
-    private string BuildBoardLine(int screenY, Room room, Player player){
+    private string BuildBoardLine(int screenY, Room room, Player player)
+    {
         var line = new StringBuilder();
-        if (screenY == 0){ //gorna ramka
+
+        if (screenY == 0){
             line.Append('┌');
             line.Append(new string('─', room.Width));
             line.Append('┐');
@@ -64,23 +66,23 @@ public sealed class Renderer{
         }
 
         if (screenY == room.Height + 1){
-            line.Append('└'); //dolna ramka
+            line.Append('└');
             line.Append(new string('─', room.Width));
             line.Append('┘');
             return line.ToString();
         }
 
         int y = screenY - 1;
-        line.Append('│'); //lewa ramka
+        line.Append('│');
 
         for (int x = 0; x < room.Width; x++){
             var pos = new Position(x, y);
-            var cell = room.GetCell(pos); 
+            var cell = room.GetCell(pos);
 
             if (pos.X == player.Position.X && pos.Y == player.Position.Y){
                 line.Append('¶');
-            } else if (cell.HasEnemy()) {
-                line.Append('E');
+            } else if (cell.HasEnemy() && cell.Enemy != null){
+                line.Append(cell.Enemy.Symbol);
             } else if (cell.ItemsOnCell.Count > 0) {
                 line.Append(cell.ItemsOnCell[0].Symbol);
             } else {
@@ -88,7 +90,7 @@ public sealed class Renderer{
             }
         }
 
-        line.Append('│'); //prawa ramka
+        line.Append('│');
         return line.ToString();
     }
 

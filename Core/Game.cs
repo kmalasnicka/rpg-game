@@ -20,7 +20,10 @@ public sealed class Game{
     private readonly string _themeName;
     private string _lastLogMessage = "";
 
-    public Game(Room room, Player player, Renderer renderer, DungeonFeatures features, string introMessage, string logFilePath, string themeName){
+    private readonly Subject<NoiseEvent> _noiseSubject;
+    private readonly Random _random = new();
+
+    public Game(Room room, Player player, Renderer renderer, DungeonFeatures features, string introMessage, string logFilePath, string themeName, Subject<NoiseEvent> noiseSubject){
         _room = room;
         _player = player;
         _renderer = renderer;
@@ -28,6 +31,8 @@ public sealed class Game{
         _introMessage = introMessage;
         _logFilePath = logFilePath;
         _themeName = themeName;
+        _noiseSubject = noiseSubject;
+
         _mode = new WorldMode();
         _instructionBuilder = new InstructionBuilder();
         _combatService = new CombatService();
@@ -182,7 +187,11 @@ public sealed class Game{
         var next = new Position(_player.Position.X + dx, _player.Position.Y + dy);
         if (_room.CanEnter(next)){
             _player.SetPosition(next);
-            _message = "";
+            if (HasEnemyOnCurrentCell()) _message = "Enemy encountered. Press 1, 2 or 3 to attack.";
+            else{
+                _room.MoveEnemiesRandomly(_random, _player.Position);
+                _message = "";
+            }
         } else {
             _message = "You cannot move there";
             Log($"Player attempted to walk into a wall at {next}.");
@@ -200,6 +209,12 @@ public sealed class Game{
         item.Interact(_player);
         _message = $"Picked up: {item.Name}";
         Log($"{_player.Name} picked up: {item.Name}.");
+
+         if (item.NoiseRange > 0){
+            _noiseSubject.NotifyAll(new NoiseEvent(_player.Position, item.NoiseRange, _room));
+        }
+
+        _room.MoveEnemiesRandomly(_random, _player.Position);
     }
 
     public void DropSelected(){
@@ -229,16 +244,25 @@ public sealed class Game{
 
         Enemy enemy = cell.Enemy;
         CombatResult result = _combatService.PerformAttack(Player, enemy, style);
-
-        if (result.EnemyDefeated) cell.RemoveEnemy();
-
         _message = result.Message;
 
-        if (result.PlayerDefeated){
-            _message = $"You were defeated by {enemy.Name}. Log file: {_logFilePath}";
+        if (result.EnemyDefeated)
+        {
+            enemy.BroadcastDeath();
+            _room.UnregisterEnemy(enemy);
+            cell.RemoveEnemy();
+
+            _message = $"You defeated {enemy.Name}.";
+            return;
+        }
+
+        if (result.PlayerDefeated || Player.IsDead)
+        {
+            _message = $"GAME OVER: You were defeated by {enemy.Name}. Log file: {_logFilePath}";
             Log($"{Player.Name} was defeated by {enemy.Name}.");
             Log($"Log file saved at: {_logFilePath}");
             _gameOver = true;
+            return;
         }
     }
 

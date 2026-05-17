@@ -6,7 +6,7 @@ public sealed class EventLog{
     private EventLog() {} //blokuje tworzenie nowych obiektow z zewnatrz
     public static EventLog Instance => _instance; //dostep do tej jednej instancji
     
-    public static IEventLog Current {
+    public static IEventLog Current { //aktualna implementacja logera 
         get{
             if(_instance._current == null) throw new InvalidOperationException("Event log is not configured.");
             return _instance._current;

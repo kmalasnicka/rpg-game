@@ -15,6 +15,7 @@ public abstract class Item : IDrawable, IInteractable{
     public virtual int GetWisdomModifier() => 0;
     public virtual int GetLuckModifier() => 0;
     public virtual bool AffectsPlayerWhileInInventory => true;
+    public virtual int NoiseRange => 0;
 }
 
 public abstract class Currency : Item{

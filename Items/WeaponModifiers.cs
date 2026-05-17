@@ -20,7 +20,8 @@ public abstract class WeaponModifier : Weapon{
     public override int GetDexterityModifier() => InnerWeapon.GetDexterityModifier();
     public override int GetAggressionModifier() => InnerWeapon.GetAggressionModifier();
     public override int GetWisdomModifier() => InnerWeapon.GetWisdomModifier();
-
+    public override int NoiseRange => InnerWeapon.NoiseRange;
+    
     public override bool TryEquip(Player player, bool targetLeftHand){
         var left = player.Equipment.Left;
         var right = player.Equipment.Right;

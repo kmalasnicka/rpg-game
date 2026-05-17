@@ -22,6 +22,7 @@ public abstract class ItemModifier : Item{
     public override int GetDexterityModifier() => InnerItem.GetDexterityModifier();
     public override int GetAggressionModifier() => InnerItem.GetAggressionModifier();
     public override int GetWisdomModifier() => InnerItem.GetWisdomModifier();
+    public override int NoiseRange => InnerItem.NoiseRange;
 }
 
 public sealed class UnluckyItemModifier : ItemModifier{
