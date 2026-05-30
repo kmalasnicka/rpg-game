@@ -1,6 +1,6 @@
-# RPG Console Game – Object Oriented Design Project
+# RPG Console Game – Object-Oriented Design Project
 
-A console-based RPG game written in C# as part of an Object Oriented Design course.
+A console-based RPG game written in C# as part of an Object-Oriented Design course.
 
 The project focuses on creating a simple RPG game while applying object-oriented programming principles and design patterns. The game is developed in stages, where each stage adds new functionality and improves the architecture of the program.
 
