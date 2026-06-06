@@ -5,7 +5,7 @@ public interface ISpeciesReaction{ //rozne gatunki moga miec rozna reakcje na sm
     void ReactToDeath(Enemy enemy); 
 }
 
-public sealed class CowardlySpeciesReaction : ISpeciesReaction{
+public sealed class CowardlySpeciesReaction : ISpeciesReaction{ //gobliny
     public string SpeciesName { get; }
 
     public CowardlySpeciesReaction(string speciesName){
@@ -13,7 +13,7 @@ public sealed class CowardlySpeciesReaction : ISpeciesReaction{
     }
 
     public void ReactToDeath(Enemy enemy){
-        enemy.ChangeStats(-2, -1); //enemy slabnie
+        enemy.ChangeStats(-2, -1); //enemy slabnie attack maleje i armor maleje
         EventLog.Current.Add($"{enemy.Name} became weaker after hearing about death in species {SpeciesName}.");
     }
 }
@@ -26,13 +26,14 @@ public sealed class AggressiveSpeciesReaction : ISpeciesReaction{
     }
 
     public void ReactToDeath(Enemy enemy){
-        enemy.ChangeStats(2, 1);//enemy staje sie silniejszy
+        enemy.ChangeStats(2, 1);//enemy staje sie silniejszy attack i armor rosnie 
         EventLog.Current.Add($"{enemy.Name} became stronger after hearing about death in species {SpeciesName}.");
     }
 }
 
 public sealed class EnemySpecies{
     private readonly Subject<EnemyDeathEvent> _deathSubject = new(); //obiekt powiadamiajacy obserwatorow o smierci enemy
+    //species nie zna szczegółów reakcji — deleguje je do strategy object
     public ISpeciesReaction Reaction { get; } //kazdy gatunek ma swoja reakcje 
 
     public EnemySpecies(ISpeciesReaction reaction){

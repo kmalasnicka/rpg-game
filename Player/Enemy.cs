@@ -1,6 +1,6 @@
 namespace Rpg;
 
-public sealed class Enemy : Fighter, IObserver<NoiseEvent>, IObserver<EnemyDeathEvent>
+public sealed class Enemy : Fighter, IObserver<NoiseEvent>, IObserver<EnemyDeathEvent> //enemy slucha dzwiekow i informacji o smierci 
 {
     private readonly EnemySpecies _species;
     private readonly Subject<NoiseEvent> _noiseSubject;
